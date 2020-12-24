@@ -809,6 +809,7 @@ static const struct sensor_driver_api bmi160_api = {
 int bmi160_init(const struct device *dev)
 {
 	struct bmi160_device_data *bmi160 = dev->data;
+	const struct bmi160_device_config *cfg = dev->config;
 	uint8_t val = 0U;
 	int32_t acc_range, gyr_range;
 
@@ -818,10 +819,24 @@ int bmi160_init(const struct device *dev)
 			    DT_INST_BUS_LABEL(0));
 		return -EINVAL;
 	}
-
 	bmi160->spi_cfg.operation = SPI_WORD_SET(8);
 	bmi160->spi_cfg.frequency = DT_INST_PROP(0, spi_max_frequency);
 	bmi160->spi_cfg.slave = DT_INST_REG_ADDR(0);
+
+#if DT_INST_SPI_DEV_HAS_CS_GPIOS(0)
+	/* handle SPI CS thru GPIO if it is the case */
+	bmi160->bmi160_cs_ctrl.gpio_dev = device_get_binding(cfg->gpio_cs_port);
+	bmi160->bmi160_cs_ctrl.gpio_pin = cfg->cs_gpio;
+	bmi160->bmi160_cs_ctrl.gpio_dt_flags = cfg->cs_flags;
+	bmi160->bmi160_cs_ctrl.delay = 0U;
+
+	bmi160->spi_cfg.cs = &bmi160->bmi160_cs_ctrl;
+
+	if (!bmi160->spi_cfg.cs->gpio_dev) {
+		LOG_ERR("Unable to get GPIO SPI CS device");
+		return -ENODEV;
+	}
+#endif
 
 	/* reboot the chip */
 	if (bmi160_byte_write(dev, BMI160_REG_CMD, BMI160_CMD_SOFT_RESET) < 0) {
@@ -829,7 +844,7 @@ int bmi160_init(const struct device *dev)
 		return -EIO;
 	}
 
-	k_busy_wait(1000);
+	k_busy_wait(3000);
 
 	/* do a dummy read from 0x7F to activate SPI */
 	if (bmi160_byte_read(dev, 0x7F, &val) < 0) {
@@ -837,7 +852,7 @@ int bmi160_init(const struct device *dev)
 		return -EIO;
 	}
 
-	k_busy_wait(100);
+	k_busy_wait(1000);
 
 	if (bmi160_byte_read(dev, BMI160_REG_CHIPID, &val) < 0) {
 		LOG_DBG("Failed to read chip id.");
@@ -904,17 +919,22 @@ int bmi160_init(const struct device *dev)
 		return -EIO;
 	}
 
-#ifdef CONFIG_BMI160_TRIGGER
-	if (bmi160_trigger_mode_init(dev) < 0) {
-		LOG_DBG("Cannot set up trigger mode.");
-		return -EINVAL;
-	}
-#endif
+// #ifdef CONFIG_BMI160_TRIGGER
+// 	if (bmi160_trigger_mode_init(dev) < 0) {
+// 		LOG_DBG("Cannot set up trigger mode.");
+// 		return -EINVAL;
+// 	}
+// #endif
 
 	return 0;
 }
 
 const struct bmi160_device_config bmi160_config = {
+#if DT_INST_SPI_DEV_HAS_CS_GPIOS(0)
+	.gpio_cs_port = DT_INST_SPI_DEV_CS_GPIOS_LABEL(0),
+	.cs_gpio = DT_INST_SPI_DEV_CS_GPIOS_PIN(0),
+	.cs_flags = DT_INST_SPI_DEV_CS_GPIOS_FLAGS(0),
+#endif
 #if defined(CONFIG_BMI160_TRIGGER)
 	.gpio_port = DT_INST_GPIO_LABEL(0, int_gpios),
 	.int_pin = DT_INST_GPIO_PIN(0, int_gpios),
