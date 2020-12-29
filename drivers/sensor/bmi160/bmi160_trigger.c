@@ -270,7 +270,7 @@ int bmi160_trigger_mode_init(const struct device *dev)
 
 	const struct bmi160_device_config *cfg = dev->config;
 
-	bmi160->gpio = device_get_binding((char *)cfg->gpio_port);
+	bmi160->gpio = device_get_binding(cfg->gpio_port);
 	if (!bmi160->gpio) {
 		LOG_DBG("Gpio controller %s not found.", cfg->gpio_port);
 		return -EINVAL;

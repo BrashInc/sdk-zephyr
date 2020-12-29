@@ -919,12 +919,12 @@ int bmi160_init(const struct device *dev)
 		return -EIO;
 	}
 
-// #ifdef CONFIG_BMI160_TRIGGER
-// 	if (bmi160_trigger_mode_init(dev) < 0) {
-// 		LOG_DBG("Cannot set up trigger mode.");
-// 		return -EINVAL;
-// 	}
-// #endif
+#ifdef CONFIG_BMI160_TRIGGER
+	if (bmi160_trigger_mode_init(dev) < 0) {
+		LOG_DBG("Cannot set up trigger mode.");
+		return -EINVAL;
+	}
+#endif
 
 	return 0;
 }
