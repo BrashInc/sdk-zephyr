@@ -305,6 +305,7 @@ int bt_hci_cmd_send_sync(uint16_t opcode, struct net_buf *buf,
 
 	err = k_sem_take(&sync_sem, HCI_CMD_TIMEOUT);
 	BT_ASSERT_MSG(err == 0, "k_sem_take failed with err %d", err);
+	if(err) return err;
 
 	status = cmd(buf)->status;
 	if (status) {
