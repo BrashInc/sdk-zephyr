@@ -1,0 +1,9 @@
+# Copyright (c) 2020 Seagate Technology LLC
+# SPDX-License-Identifier: Apache-2.0
+
+config LP500X
+	bool "LP500X LED controller"
+	depends on I2C
+	help
+	  Enable driver for the Texas Instruments LP5009 and LP5012 I2C LED
+	  controllers. They are respectively supporting up to 9 and 12 LEDs.
