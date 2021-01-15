@@ -3255,7 +3255,7 @@ bool k_delayed_work_pending(struct k_delayed_work *work);
  *
  * @return N/A
  */
-extern void k_work_q_start(struct k_work_q *work_q,
+extern k_tid_t k_work_q_start(struct k_work_q *work_q,
 			   k_thread_stack_t *stack,
 			   size_t stack_size, int prio);
 
