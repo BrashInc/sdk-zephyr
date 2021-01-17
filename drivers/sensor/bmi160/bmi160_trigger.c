@@ -52,9 +52,8 @@ static void bmi160_handle_drdy(const struct device *dev, uint8_t status)
 static void bmi160_handle_interrupts(const struct device *dev)
 {
 	union {
-		uint8_t raw[6];
+		uint8_t raw[5];
 		struct {
-			uint8_t dummy; /* spi related dummy byte */
 			uint8_t status;
 			uint8_t int_status[4];
 		};
@@ -71,7 +70,8 @@ static void bmi160_handle_interrupts(const struct device *dev)
 		bmi160_handle_anymotion(dev);
 	}
 
-	if (buf.int_status[1] & BMI160_INT_STATUS1_DRDY) {
+	if (buf.status & (BMI160_STATUS_ACC_DRDY | BMI160_STATUS_GYR_DRDY) || 
+		(buf.int_status[1] & BMI160_INT_STATUS1_DRDY)) {
 		bmi160_handle_drdy(dev, buf.status);
 	}
 
