@@ -843,7 +843,7 @@ int bmi160_init(const struct device *dev)
 		return -EIO;
 	}
 
-	k_busy_wait(3000);
+	k_busy_wait(5000);
 
 	/* do a dummy read from 0x7F to activate SPI */
 	if (bmi160_byte_read(dev, 0x7F, &val) < 0) {
@@ -851,7 +851,7 @@ int bmi160_init(const struct device *dev)
 		return -EIO;
 	}
 
-	k_busy_wait(1000);
+	k_busy_wait(2000);
 
 	if (bmi160_byte_read(dev, BMI160_REG_CHIPID, &val) < 0) {
 		LOG_DBG("Failed to read chip id.");
