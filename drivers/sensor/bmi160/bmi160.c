@@ -646,17 +646,16 @@ static int bmi160_sample_fetch(const struct device *dev,
 
 	__ASSERT_NO_MSG(chan == SENSOR_CHAN_ALL);
 
-	bmi160->sample.raw[0] = 0U;
-
-	while ((bmi160->sample.raw[0] & BMI160_DATA_READY_BIT_MASK) == 0U) {
+	uint8_t status = 0;
+	while ((status & BMI160_DATA_READY_BIT_MASK) == 0U) {
 		if (bmi160_transceive(dev, BMI160_REG_STATUS | (1 << 7), false,
-				      bmi160->sample.raw, 1) < 0) {
+				      &status, 1) < 0) {
 			return -EIO;
 		}
 	}
 
 	if (bmi160_transceive(dev, BMI160_SAMPLE_BURST_READ_ADDR | (1 << 7),
-			      false, bmi160->sample.raw, BMI160_BUF_SIZE) < 0) {
+			      false, bmi160->sample.gyr, BMI160_BUF_SIZE) < 0) {
 		return -EIO;
 	}
 
