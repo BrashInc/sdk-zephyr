@@ -145,6 +145,12 @@ static int bmi160_trigger_drdy_set(const struct device *dev,
 	}
 #endif
 
+	uint8_t unused_buf[5];
+	// Clear any pending interrupts
+	if (bmi160_read(dev, BMI160_REG_STATUS, unused_buf, sizeof(unused_buf)) < 0) {
+		return -EIO;
+	}
+
 	if (bmi160_reg_update(dev, BMI160_REG_INT_EN1,
 			      BMI160_INT_DRDY_EN, drdy_en) < 0) {
 		return -EIO;
