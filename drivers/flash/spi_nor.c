@@ -864,6 +864,9 @@ static int spi_nor_configure(const struct device *dev)
 	/* now the spi bus is configured, we can verify SPI
 	 * connectivity by reading the JEDEC ID.
 	 */
+	
+	/* Call once to clear any garbage on the line */
+	spi_nor_read_jedec_id(dev, jedec_id);
 
 	rc = spi_nor_read_jedec_id(dev, jedec_id);
 	if (rc != 0) {
