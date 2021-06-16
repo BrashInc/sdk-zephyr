@@ -210,7 +210,9 @@ static int max17055_gauge_init(const struct device *dev)
 		return -EINVAL;
 	}
 
-	return 0;
+	/* Read the cell voltage to test device communication */
+	int16_t dummy;
+	return max17055_reg_read(priv, VCELL, &dummy);
 }
 
 static const struct sensor_driver_api max17055_battery_driver_api = {
