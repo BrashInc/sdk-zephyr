@@ -12,6 +12,7 @@
 
 #include <init.h>
 #include <drivers/i2c.h>
+#include <drivers/spi.h>
 #include <drivers/sensor.h>
 #include <sys/byteorder.h>
 #include <kernel.h>
@@ -886,7 +887,7 @@ int bmi160_init(const struct device *dev)
 		return -EIO;
 	}
 
-	k_busy_wait(1000);
+	k_busy_wait(3000);
 
 	/* do a dummy read from 0x7F to activate SPI */
 	if (bmi160_byte_read(dev, BMI160_SPI_START, &val) < 0) {
@@ -894,7 +895,7 @@ int bmi160_init(const struct device *dev)
 		return -EIO;
 	}
 
-	k_busy_wait(100);
+	k_busy_wait(1000);
 
 	if (bmi160_byte_read(dev, BMI160_REG_CHIPID, &val) < 0) {
 		LOG_DBG("Failed to read chip id.");
@@ -994,12 +995,9 @@ int bmi160_init(const struct device *dev)
 		.reg_io = &bmi160_reg_io_spi,				\
 		.bus_label = DT_INST_BUS_LABEL(inst),			\
 		.bus_cfg = {						\
-			.spi_cfg = (&(struct spi_config) {		\
-				.operation = SPI_WORD_SET(8),		\
-				.frequency = DT_INST_PROP(inst,		\
-					spi_max_frequency),		\
-				.slave = DT_INST_REG_ADDR(inst),	\
-			}),						\
+			.spi_cfg = (&(struct spi_config) \
+				SPI_CONFIG_DT(DT_DRV_INST(inst), SPI_WORD_SET(8), 0) \
+			) \
 		},							\
 	};								\
 	BMI160_DEVICE_INIT(inst)

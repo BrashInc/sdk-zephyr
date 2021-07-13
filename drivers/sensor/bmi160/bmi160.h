@@ -404,12 +404,8 @@ struct bmi160_range {
 
 struct bmi160_bus_cfg {
 	union {
-#if BMI160_BUS_SPI
 		const struct spi_config *spi_cfg;
-#endif
-#if BMI160_BUS_I2C
 		uint16_t i2c_addr;
-#endif
 	};
 };
 
@@ -428,12 +424,10 @@ struct bmi160_reg_io {
 struct bmi160_cfg {
 	struct bmi160_bus_cfg bus_cfg;
 	const struct bmi160_reg_io *reg_io;
-	const char *bus_label;
-#if defined(CONFIG_BMI160_TRIGGER)
-	const char *gpio_port;
 	gpio_pin_t int_pin;
 	gpio_dt_flags_t int_flags;
-#endif
+	const char *bus_label;
+	const char *gpio_port;
 };
 
 union bmi160_pmu_status {
